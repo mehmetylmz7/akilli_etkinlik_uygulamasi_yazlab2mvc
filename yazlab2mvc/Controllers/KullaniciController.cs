@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using yazlab2mvc.Models;
+using yazlab2mvc.ViewModels;
 using System.Linq;
 
 namespace yazlab2mvc.Controllers
@@ -21,13 +22,30 @@ namespace yazlab2mvc.Controllers
 
         // POST: Kullanici/Create
         [HttpPost]
-        public IActionResult Create(Kullanicilar kullanici)
+        public IActionResult Create(CreateKullaniciViewModel kullanici)
         {
+
+
             if (ModelState.IsValid)
             {
+                Kullanicilar kullaniciEntity = new Kullanicilar
+                {
+                    KullaniciAdi = kullanici.KullaniciAdi,
+                    Sifre = kullanici.Sifre,
+                    Eposta = kullanici.Eposta,
+                    TelefonNumarasi = kullanici.TelefonNumarasi,
+                    Ad = kullanici.Ad,
+                    Soyad = kullanici.Soyad,
+                    DogumTarihi = kullanici.DogumTarihi,
+                    Cinsiyet = kullanici.Cinsiyet,
+                    Konum = kullanici.Konum,
+                    IlgiAlanlari = kullanici.IlgiAlanlari,
+                    ProfilFotografi = kullanici.ProfilFotografi,
+                };
+
                 try
                 {
-                    _context.Kullanicilar.Add(kullanici);
+                    _context.Kullanicilar.Add(kullaniciEntity);
                     _context.SaveChanges();
                     ViewBag.Mesaj = "Kayıt başarılı";
                     return View();
