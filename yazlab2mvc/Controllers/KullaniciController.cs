@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using yazlab2mvc.Models;
-using yazlab2mvc.ViewModels;
-using System.Linq;
 
 namespace yazlab2mvc.Controllers
 {
@@ -14,61 +14,74 @@ namespace yazlab2mvc.Controllers
             _context = context;
         }
 
-        // GET: Kullanici/Create
-        public IActionResult Create()
+        [HttpGet]
+        public IActionResult KayitOl()
         {
             return View();
         }
 
-        // POST: Kullanici/Create
         [HttpPost]
-        public IActionResult Create(CreateKullaniciViewModel kullanici)
+        public async Task<IActionResult> KayitOl(Kullanicilar kullanici)
         {
-
-
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                Kullanicilar kullaniciEntity = new Kullanicilar
-                {
-                    KullaniciAdi = kullanici.KullaniciAdi,
-                    Sifre = kullanici.Sifre,
-                    Eposta = kullanici.Eposta,
-                    TelefonNumarasi = kullanici.TelefonNumarasi,
-                    Ad = kullanici.Ad,
-                    Soyad = kullanici.Soyad,
-                    DogumTarihi = kullanici.DogumTarihi,
-                    Cinsiyet = kullanici.Cinsiyet,
-                    Konum = kullanici.Konum,
-                    IlgiAlanlari = kullanici.IlgiAlanlari,
-                    ProfilFotografi = kullanici.ProfilFotografi,
-                };
-
                 try
                 {
-                    _context.Kullanicilar.Add(kullaniciEntity);
-                    _context.SaveChanges();
-                    ViewBag.Mesaj = "Kayıt başarılı";
-                    return View();
+                    // Kullanıcı bilgilerini veritabanına kaydet
+                    _context.Kullanicilar.Add(kullanici);
+                    await _context.SaveChangesAsync();
+
+                    ViewBag.Message = "Kullanıcı başarıyla eklendi!";
+                    ViewBag.IsSuccess = true; // Başarı durumu
                 }
                 catch (Exception ex)
                 {
-                    ViewBag.Mesaj = "Kaydedilmedi: " + ex.Message;
+                    // Hata durumunda ViewBag.Message'e hata mesajını ekleyin
+                    ViewBag.Message = "Kayıt sırasında bir hata oluştu: " + ex.Message;
+                    ViewBag.IsSuccess = false; // Başarı durumu false
                 }
+
+                //return View();
             }
             else
             {
-                ViewBag.Mesaj = "Kaydedilmedi: Geçersiz veri";
+                ViewBag.Message = "Model State is invalid!";
+                ViewBag.IsSuccess = false; // Başarı durumu false
             }
-            return View(kullanici);
+
+            return View(kullanici); // Model doğrulama hataları varsa formu tekrar göster
+        }
+        // GET: Kullanici/GirisYap
+        [HttpGet]
+        public IActionResult GirisYap()
+        {
+            return View();
         }
 
-
-
-        // GET: Kullanici/Index
-        public IActionResult Index()
+        // POST: Kullanici/GirisYap
+        [HttpPost]
+        public IActionResult GirisYap(string kullaniciAdi, string sifre)
         {
-            var kullanicilar = _context.Kullanicilar.ToList();
-            return View(kullanicilar);
+            // Kullanıcı adı ve şifreyi veritabanında kontrol et
+            var kullanici = _context.Kullanicilar
+                .FirstOrDefault(k => k.KullaniciAdi == kullaniciAdi && k.Sifre == sifre);
+
+            if (kullanici != null)
+            {
+                ViewBag.Message = "Giriş başarılı!";
+                ViewBag.IsSuccess = true;
+
+                // Burada kullanıcının giriş yaptığını belirten bir işlem yapabilirsiniz,
+                // örneğin oturum açmak için Session kullanabilirsiniz.
+            }
+            else
+            {
+                ViewBag.Message = "Kullanıcı adı veya şifre yanlış. Lütfen tekrar deneyin veya kayıt olun.";
+                ViewBag.IsSuccess = false;
+                return RedirectToAction("KayitOl"); // Kullanıcı bulunamazsa KayitOl sayfasına yönlendir
+            }
+
+            return View();
         }
     }
 }

@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Giriş Yap";
+}
+
+<h2>Giriş Yap</h2>
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert @(ViewBag.IsSuccess ? "alert-success" : "alert-danger")">
+        @ViewBag.Message
+    </div>
+}
+
+<form asp-action="GirisYap" method="post">
+    <label>Kullanıcı Adı:</label>
+    <input name="kullaniciAdi" class="form-control" />
+
+    <label>Şifre:</label>
+    <input name="sifre" type="password" class="form-control" />
+
+    <button type="submit" class="btn btn-primary mt-3">Giriş Yap</button>
+</form>
