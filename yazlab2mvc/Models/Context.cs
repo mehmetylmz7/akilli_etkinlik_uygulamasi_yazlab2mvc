@@ -2,11 +2,16 @@
 
 namespace yazlab2mvc.Models
 {
-    public class Context:DbContext 
+    public class Context : DbContext
     {
+        public Context(DbContextOptions<Context> options) : base(options) { }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("server=DIDIM\\SQLEXPRESS; database=dbyazlab2; integrated security=true;TrustServerCertificate = True;");
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer("server=DIDIM\\SQLEXPRESS; database=dbyazlab2; integrated security=true;TrustServerCertificate = True;");
+            }
         }
 
         public DbSet<Kullanicilar> Kullanicilar { get; set; }
@@ -14,7 +19,6 @@ namespace yazlab2mvc.Models
         public DbSet<Katilimcilar> Katilimcilar { get; set; }
         public DbSet<Mesajlar> Mesajlar { get; set; }
         public DbSet<Puanlar> Puanlar { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,6 +48,5 @@ namespace yazlab2mvc.Models
                 .WithMany(e => e.Mesajlar)
                 .HasForeignKey(m => m.EtkinlikID);
         }
-
     }
 }

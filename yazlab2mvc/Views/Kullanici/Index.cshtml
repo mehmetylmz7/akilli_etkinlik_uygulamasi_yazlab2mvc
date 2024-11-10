@@ -1,0 +1,33 @@
+﻿@model IEnumerable<yazlab2mvc.Models.Kullanicilar>
+
+@{
+    ViewData["Title"] = "Kullanıcılar Listesi";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Kullanıcı Adı</th>
+            <th>E-posta</th>
+            <th>Telefon Numarası</th>
+            <th>Ad</th>
+            <th>Soyad</th>
+            <th>Doğum Tarihi</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var kullanici in Model)
+        {
+            <tr>
+                <td>@kullanici.KullaniciAdi</td>
+                <td>@kullanici.Eposta</td>
+                <td>@kullanici.TelefonNumarasi</td>
+                <td>@kullanici.Ad</td>
+                <td>@kullanici.Soyad</td>
+                <td>@kullanici.DogumTarihi.ToString("yyyy-MM-dd")</td>
+            </tr>
+        }
+    </tbody>
+</table>

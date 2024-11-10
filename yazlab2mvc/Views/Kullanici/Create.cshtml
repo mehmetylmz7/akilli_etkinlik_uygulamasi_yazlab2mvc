@@ -1,0 +1,89 @@
+﻿@model yazlab2mvc.Models.Kullanicilar
+
+@{
+    ViewData["Title"] = "Yeni Kullanıcı Ekle";
+}
+@if (TempData["Mesaj"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["Mesaj"]
+    </div>
+}
+
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-controller="Kullanici" asp-action="Create" method="post">
+
+    <div class="form-group">
+        <label asp-for="KullaniciAdi" class="control-label"></label>
+        <input asp-for="KullaniciAdi" class="form-control" />
+        <span asp-validation-for="KullaniciAdi" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Sifre" class="control-label"></label>
+        <input asp-for="Sifre" class="form-control" />
+        <span asp-validation-for="Sifre" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Eposta" class="control-label"></label>
+        <input asp-for="Eposta" class="form-control" />
+        <span asp-validation-for="Eposta" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="TelefonNumarasi" class="control-label"></label>
+        <input asp-for="TelefonNumarasi" class="form-control" />
+        <span asp-validation-for="TelefonNumarasi" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Ad" class="control-label"></label>
+        <input asp-for="Ad" class="form-control" />
+        <span asp-validation-for="Ad" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Soyad" class="control-label"></label>
+        <input asp-for="Soyad" class="form-control" />
+        <span asp-validation-for="Soyad" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="DogumTarihi" class="control-label"></label>
+        <input asp-for="DogumTarihi" type="date" class="form-control" />
+        <span asp-validation-for="DogumTarihi" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Cinsiyet" class="control-label"></label>
+        <select asp-for="Cinsiyet" class="form-control">
+            <option value="Erkek">Erkek</option>
+            <option value="Kadın">Kadın</option>
+            <option value="Diğer">Diğer</option>
+        </select>
+        <span asp-validation-for="Cinsiyet" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Konum" class="control-label"></label>
+        <input asp-for="Konum" class="form-control" />
+        <span asp-validation-for="Konum" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IlgiAlanlari" class="control-label"></label>
+        <input asp-for="IlgiAlanlari" class="form-control" />
+        <span asp-validation-for="IlgiAlanlari" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ProfilFotografi" class="control-label"></label>
+        <input asp-for="ProfilFotografi" type="file" class="form-control" />
+        <span asp-validation-for="ProfilFotografi" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+</form>
