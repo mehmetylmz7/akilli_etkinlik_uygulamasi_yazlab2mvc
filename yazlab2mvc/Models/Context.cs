@@ -47,6 +47,21 @@ namespace yazlab2mvc.Models
                 .HasOne(m => m.Etkinlik)
                 .WithMany(e => e.Mesajlar)
                 .HasForeignKey(m => m.EtkinlikID);
+
+            // Yeni: Etkinlikleri oluşturan kullanıcı ilişkisi
+          /*  modelBuilder.Entity<Etkinlikler>()
+                .HasOne(e => e.OlusturanKullanici)
+                .WithMany(k => k.OlusturduguEtkinlikler)
+                .HasForeignKey(e => e.OlusturanKullaniciID)
+                .OnDelete(DeleteBehavior.Cascade); */
+
+            modelBuilder.Entity<Etkinlikler>()
+    .HasOne(e => e.OlusturanKullanici)
+    .WithMany(u => u.OlusturduguEtkinlikler)
+    .HasForeignKey(e => e.OlusturanKullaniciID)
+    .OnDelete(DeleteBehavior.SetNull); // Veya .OnDelete(DeleteBehavior.NoAction)
+
+
         }
     }
 }

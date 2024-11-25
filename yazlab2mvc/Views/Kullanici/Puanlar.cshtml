@@ -1,0 +1,30 @@
+﻿ @model List<yazlab2mvc.Models.Puanlar>
+
+<h2>Puan Geçmişim</h2>
+
+@if (Model != null && Model.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Puan Miktarı</th>
+                <th>Yıl</th>
+                <th>Tarih</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var puan in Model)
+            {
+                <tr>
+                    <td>@puan.Puan</td>
+                    <td>@puan.KazanilanTarih.Year</td>
+                    <td>@puan.KazanilanTarih.ToString("dd MMMM yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Henüz kazanılmış bir puanınız bulunmamaktadır.</p>
+}

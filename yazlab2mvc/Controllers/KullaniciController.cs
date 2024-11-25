@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using yazlab2mvc.Models;
@@ -13,6 +14,41 @@ namespace yazlab2mvc.Controllers
         {
             _context = context;
         }
+
+        // Profilim Sayfası
+        public IActionResult Profil()
+        {
+            var kullaniciID = HttpContext.Session.GetInt32("KullaniciID");
+            var kullanici = _context.Kullanicilar.FirstOrDefault(k => k.ID == kullaniciID);
+
+            if (kullanici != null)
+            {
+                ViewData["KullaniciAdi"] = kullanici.Ad + " " + kullanici.Soyad; // Kullanıcı adı ve soyadı birleştirip ViewData'ya ekliyoruz.
+            }
+
+            return View(kullanici); // Profil sayfasını döndürüyoruz
+        }
+
+
+        // Katıldığım Etkinlikler
+        public IActionResult KatildigimEtkinlikler()
+        {
+            var kullaniciID = HttpContext.Session.GetInt32("KullaniciID");
+            var etkinlikler = _context.Katilimcilar.Where(k => k.KullaniciID == kullaniciID)
+                                                  .Select(k => k.Etkinlik)
+                                                  .ToList();
+            return View(etkinlikler);
+        }
+
+        // Puan Geçmişim
+        public IActionResult Puanlar()
+        {
+            var kullaniciID = HttpContext.Session.GetInt32("KullaniciID");
+            var puanlar = _context.Puanlar.Where(p => p.KullaniciID == kullaniciID).ToList();
+            return View(puanlar);
+        }
+
+
 
         [HttpGet]
         public IActionResult KayitOl()
@@ -58,30 +94,142 @@ namespace yazlab2mvc.Controllers
             return View();
         }
 
+        public IActionResult KullaniciArayuz()
+        {
+            var kullaniciID = HttpContext.Session.GetInt32("KullaniciID");
+
+            if (kullaniciID.HasValue)
+            {
+                var kullanici = _context.Kullanicilar.FirstOrDefault(k => k.ID == kullaniciID.Value);
+
+                if (kullanici != null)
+                {
+                    // Kullanıcı adı ve soyadını ViewData'ya aktarıyoruz
+                    ViewData["KullaniciAdi"] = kullanici.Ad + " " + kullanici.Soyad;
+                }
+            }
+
+            return View(); // Kullanıcı arayüzüne yönlendir
+        }
+
+
+
+
+
         // POST: Kullanici/GirisYap
         [HttpPost]
         public IActionResult GirisYap(string kullaniciAdi, string sifre)
         {
-            // Kullanıcı adı ve şifreyi veritabanında kontrol et
             var kullanici = _context.Kullanicilar
                 .FirstOrDefault(k => k.KullaniciAdi == kullaniciAdi && k.Sifre == sifre);
 
             if (kullanici != null)
             {
-                ViewBag.Message = "Giriş başarılı!";
-                ViewBag.IsSuccess = true;
+                // Kullanıcı ID'sini oturuma ekle
+                HttpContext.Session.SetInt32("KullaniciID", kullanici.ID);
 
-                // Burada kullanıcının giriş yaptığını belirten bir işlem yapabilirsiniz,
-                // örneğin oturum açmak için Session kullanabilirsiniz.
+                // Başarılı girişten sonra yönlendir
+                return RedirectToAction("KullaniciArayuz", "Kullanici");
             }
             else
             {
-                ViewBag.Message = "Kullanıcı adı veya şifre yanlış. Lütfen tekrar deneyin veya kayıt olun.";
+                ViewBag.Message = "Kullanıcı adı veya şifre yanlış. Lütfen tekrar deneyin.";
                 ViewBag.IsSuccess = false;
-                return RedirectToAction("KayitOl"); // Kullanıcı bulunamazsa KayitOl sayfasına yönlendir
+                return View();
             }
-
+        }
+        [HttpGet]
+        public IActionResult EtkinlikOlustur()
+        {
             return View();
         }
+
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> EtkinlikOlustur(Etkinlikler etkinlik)
+        {
+            try
+            {
+                // Giriş yapan kullanıcının ID'sini oturumdan al
+                var kullaniciID = HttpContext.Session.GetInt32("KullaniciID");
+                if (!kullaniciID.HasValue)
+                {
+                    ViewBag.Message = "Kullanıcı giriş yapmamış. Lütfen giriş yapın.";
+                    return RedirectToAction("GirisYap", "Kullanici");
+                }
+
+                // Kullanıcı ID'sini etkinlik ile eşleştir
+                etkinlik.OlusturanKullaniciID = kullaniciID.Value;
+
+                // Etkinliği veritabanına ekle
+                _context.Etkinlikler.Add(etkinlik);
+                await _context.SaveChangesAsync(); // SaveChanges sonrası etkinlik ID'si oluşturulur
+
+                // Katilimcilar tablosuna etkinlik oluşturucusunu ekle
+                var katilimci = new Katilimcilar
+                {
+                    KullaniciID = kullaniciID.Value,
+                    EtkinlikID = etkinlik.ID
+                };
+                _context.Katilimcilar.Add(katilimci);
+                await _context.SaveChangesAsync();
+
+                ViewBag.Message = "Etkinlik başarıyla oluşturuldu ve katılım eklendi!";
+                return RedirectToAction("KullaniciArayuz", "Kullanici");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = "Bir hata oluştu: " + ex.Message;
+                return View(etkinlik);
+            }
+        }
+
+        public IActionResult EtkinlikleriGoruntule()
+        {
+            // Tüm etkinlikleri veritabanından çekiyoruz
+            var etkinlikler = _context.Etkinlikler.Include(e => e.OlusturanKullanici).ToList();
+            return View(etkinlikler);
+        }
+
+
+        [HttpPost]
+        public IActionResult EtkinligeKatil(int etkinlikID)
+        {
+            var kullaniciID = HttpContext.Session.GetInt32("KullaniciID");
+
+            if (!kullaniciID.HasValue)
+            {
+                ViewBag.Message = "Kullanıcı giriş yapmamış. Lütfen giriş yapın.";
+                return RedirectToAction("GirisYap", "Kullanici");
+            }
+
+            // Kullanıcı daha önce bu etkinliğe katılmış mı kontrol ediliyor
+            var mevcutKatilim = _context.Katilimcilar
+                .FirstOrDefault(k => k.KullaniciID == kullaniciID.Value && k.EtkinlikID == etkinlikID);
+
+            if (mevcutKatilim == null)
+            {
+                // Katılım bilgisi ekleniyor
+                var yeniKatilim = new Katilimcilar
+                {
+                    KullaniciID = kullaniciID.Value,
+                    EtkinlikID = etkinlikID
+                };
+
+                _context.Katilimcilar.Add(yeniKatilim);
+                _context.SaveChanges();
+
+                ViewBag.Message = "Etkinliğe başarıyla katıldınız!";
+            }
+            else
+            {
+                ViewBag.Message = "Bu etkinliğe zaten katıldınız.";
+            }
+
+            return RedirectToAction("EtkinlikleriGoruntule");
+        }
+
     }
 }

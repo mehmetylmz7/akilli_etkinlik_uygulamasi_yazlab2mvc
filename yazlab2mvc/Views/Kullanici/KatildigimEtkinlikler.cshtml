@@ -1,0 +1,31 @@
+﻿@model List<yazlab2mvc.Models.Etkinlikler>
+
+<h2>Katıldığım Etkinlikler</h2>
+
+@if (Model != null && Model.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Etkinlik Adı</th>
+                <th>Etkinlik Tarihi</th>
+                <th>Etkinlik Konumu</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var etkinlik in Model)
+            {
+                <tr>
+                    <td>@etkinlik.EtkinlikAdi</td>
+                    <td>@etkinlik.Tarih.ToString("dd MMMM yyyy")</td>
+                    <td>@etkinlik.Konum</td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Henüz katıldığınız etkinlik bulunmamaktadır.</p>
+}

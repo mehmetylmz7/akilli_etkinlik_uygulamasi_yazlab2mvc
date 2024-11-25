@@ -18,3 +18,4 @@ namespace yazlab2mvc.Models
     }
 }
 
+    

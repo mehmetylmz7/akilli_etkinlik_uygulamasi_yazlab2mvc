@@ -1,0 +1,72 @@
+﻿@model List<yazlab2mvc.Models.Etkinlikler>
+
+<h2>Mevcut Etkinlikler</h2>
+
+@if (Model != null && Model.Count > 0)
+{
+    var kullaniciAdi = ViewData["KullaniciAdi"] as string; // ViewData'dan giriş yapan kullanıcı adını alıyoruz.
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Etkinlik Adı</th>
+                <th>Etkinlik Tarihi</th>
+                <th>Etkinlik Saati</th>
+                <th>Konum</th>
+                <th>Oluşturan Kullanıcı</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var etkinlik in Model)
+            {
+                <tr>
+                    <td>@etkinlik.EtkinlikAdi</td>
+                    <td>@etkinlik.Tarih.ToString("dd MMMM yyyy")</td>
+                    <td>@etkinlik.Saat.ToString(@"hh\:mm")</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(etkinlik.Konum))
+                        {
+                            <iframe src="@etkinlik.Konum"
+                                    width="300"
+                                    height="200"
+                                    style="border:0;"
+                                    allowfullscreen=""
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer-when-downgrade">
+                            </iframe>
+                        }
+                        else
+                        {
+                            <span>Konum bilgisi mevcut değil</span>
+                        }
+                    </td>
+                    <td>
+                        @etkinlik.OlusturanKullanici?.KullaniciAdi
+                        @if (!string.IsNullOrEmpty(kullaniciAdi) && etkinlik.OlusturanKullanici?.KullaniciAdi == kullaniciAdi)
+                        {
+                            <span>(Sen)</span>
+                        }
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(kullaniciAdi) && etkinlik.OlusturanKullanici?.KullaniciAdi == kullaniciAdi)
+                        {
+                            <button class="btn btn-secondary" disabled>Etkinliği Sen Oluşturdun</button>
+                        }
+                        else
+                        {
+                            <form method="post" asp-action="EtkinligeKatil" asp-controller="Kullanici">
+                                <input type="hidden" name="etkinlikID" value="@etkinlik.ID" />
+                                <button type="submit" class="btn btn-primary">Etkinliğe Katıl</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Şu anda görüntülenebilecek etkinlik yok.</p>
+}

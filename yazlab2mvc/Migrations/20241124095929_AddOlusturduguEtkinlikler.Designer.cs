@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using yazlab2mvc.Models;
 
@@ -11,9 +12,11 @@ using yazlab2mvc.Models;
 namespace yazlab2mvc.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20241124095929_AddOlusturduguEtkinlikler")]
+    partial class AddOlusturduguEtkinlikler
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,9 +52,6 @@ namespace yazlab2mvc.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("OlusturanKullaniciID")
-                        .HasColumnType("int");
-
                     b.Property<TimeSpan>("Saat")
                         .HasColumnType("time");
 
@@ -59,8 +59,6 @@ namespace yazlab2mvc.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("OlusturanKullaniciID");
 
                     b.ToTable("Etkinlikler");
                 });
@@ -191,17 +189,6 @@ namespace yazlab2mvc.Migrations
                     b.ToTable("Puanlar");
                 });
 
-            modelBuilder.Entity("yazlab2mvc.Models.Etkinlikler", b =>
-                {
-                    b.HasOne("yazlab2mvc.Models.Kullanicilar", "OlusturanKullanici")
-                        .WithMany("OlusturduguEtkinlikler")
-                        .HasForeignKey("OlusturanKullaniciID")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.Navigation("OlusturanKullanici");
-                });
-
             modelBuilder.Entity("yazlab2mvc.Models.Katilimcilar", b =>
                 {
                     b.HasOne("yazlab2mvc.Models.Etkinlikler", "Etkinlik")
@@ -273,8 +260,6 @@ namespace yazlab2mvc.Migrations
                     b.Navigation("GonderilenMesajlar");
 
                     b.Navigation("KatildigiEtkinlikler");
-
-                    b.Navigation("OlusturduguEtkinlikler");
 
                     b.Navigation("Puanlar");
                 });

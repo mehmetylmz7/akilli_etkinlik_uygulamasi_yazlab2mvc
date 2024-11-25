@@ -1,0 +1,28 @@
+﻿@{
+    var kullaniciAdi = ViewData["KullaniciAdi"] as string; // ViewData'dan kullanıcı adını al
+}
+
+<h2>Merhaba, @kullaniciAdi</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Message"]
+    </div>
+}
+
+
+<div class="sidebar">
+    <ul>
+        <li><a href="@Url.Action("Profil", "Kullanici")">Profilim</a></li>
+        <li><a href="@Url.Action("KatildigimEtkinlikler", "Kullanici")">Katıldığım Etkinlikler</a></li>
+        <li><a href="@Url.Action("Puanlar", "Kullanici")">Puan Geçmişim</a></li>
+        <li><a href="@Url.Action("EtkinlikOlustur", "Kullanici")">Etkinlik Oluştur</a></li>
+        <li><a href="@Url.Action("EtkinlikleriGoruntule", "Kullanici")">Etkinlikleri Görüntüle</a></li>
+    </ul>
+</div>
+
+<!-- Kullanıcı arayüzü için içerik alanı -->
+<div class="content">
+
+</div>

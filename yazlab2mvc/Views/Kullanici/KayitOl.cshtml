@@ -35,7 +35,12 @@
     <input asp-for="DogumTarihi" type="date" class="form-control" />
 
     <label>Cinsiyet:</label>
-    <input asp-for="Cinsiyet" class="form-control" />
+    <select asp-for="Cinsiyet" class="form-control">
+        <option value="Erkek">Erkek</option>
+        <option value="Kadin">Kadın</option>
+        <option value="Diger">Diğer</option>
+    </select>
+
 
     <label>Telefon Numarası:</label>
     <input asp-for="TelefonNumarasi" class="form-control" />

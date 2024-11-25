@@ -10,6 +10,14 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<Context>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// **Session'ý ekle**
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Oturum süresi (30 dakika)
+    options.Cookie.HttpOnly = true;                // Güvenlik için HttpOnly cookie
+    options.Cookie.IsEssential = true;             // GDPR uyumu için gerekli iþaretleme
+});
+
 // Build the application
 var app = builder.Build();
 
@@ -26,6 +34,9 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+// **Session middleware ekle**
+app.UseSession();
 
 // Define default route
 app.MapControllerRoute(
