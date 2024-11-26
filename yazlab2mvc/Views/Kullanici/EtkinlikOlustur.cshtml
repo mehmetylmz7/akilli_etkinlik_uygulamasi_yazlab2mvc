@@ -1,35 +1,66 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-
+﻿@{
     @model yazlab2mvc.Models.Etkinlikler
 
-    <h2>Etkinlik Oluştur</h2>
+}
 
-    <form asp-action="EtkinlikOlustur" method="post">
-        <label>Etkinlik Adı:</label>
-        <input asp-for="EtkinlikAdi" class="form-control" />
+<h2>Etkinlik Oluştur</h2>
 
-        <label>Açıklama:</label>
-        <textarea asp-for="Aciklama" class="form-control"></textarea>
+<div id="map" style="height: 500px; width: 100%; margin-bottom: 20px;"></div>
 
-        <label>Tarih:</label>
-        <input asp-for="Tarih" type="date" class="form-control" />
+<form asp-action="EtkinlikOlustur" method="post">
+    <label>Etkinlik Adı:</label>
+    <input asp-for="EtkinlikAdi" class="form-control" />
 
-        <label>Saat:</label>
-        <input asp-for="Saat" type="time" class="form-control" />
+    <label>Açıklama:</label>
+    <textarea asp-for="Aciklama" class="form-control"></textarea>
 
-        <label>Süre:</label>
-        <input asp-for="EtkinlikSuresi" type="time" class="form-control" />
+    <label>Tarih:</label>
+    <input asp-for="Tarih" type="date" class="form-control" />
 
-        <label>Konum:</label>
-        <input asp-for="Konum" class="form-control" />
+    <label>Saat:</label>
+    <input asp-for="Saat" type="time" class="form-control" />
 
-        <label>Kategori:</label>
-        <input asp-for="Kategori" class="form-control" />
+    <label>Süre:</label>
+    <input asp-for="EtkinlikSuresi" type="time" class="form-control" />
 
-        <button type="submit" class="btn btn-primary mt-3">Oluştur</button>
-    </form>
+    <label>Konum:</label>
+    <input asp-for="Konum" id="konum" class="form-control" readonly />
 
+    <label>Kategori:</label>
+    <input asp-for="Kategori" class="form-control" />
+
+    <button type="submit" class="btn btn-primary mt-3">Oluştur</button>
+</form>
+
+@section Scripts {
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFXDO-G5xsoSOXpV0F-MLfOZ6_qBXHCFw&callback=initMap" async defer></script>
+
+    <script>
+        // Haritayı başlatma
+        function initMap() {
+            // İstanbul koordinatları (varsayılan başlangıç)
+            const map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 41.0082, lng: 28.9784 },
+                zoom: 10,
+            });
+
+            let marker;
+
+            // Haritaya tıklayınca marker ekleme ve konumu inputa yazma
+            map.addListener("click", (e) => {
+                if (marker) {
+                    marker.setMap(null); // Önceki marker'ı kaldır
+                }
+
+                marker = new google.maps.Marker({
+                    position: e.latLng,
+                    map: map,
+                });
+
+                // Konumu inputa yaz
+                document.getElementById("konum").value = `${e.latLng.lat()}, ${e.latLng.lng()}`;
+            });
+        }
+    </script>
 }

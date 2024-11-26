@@ -4,8 +4,6 @@
 
 @if (Model != null && Model.Count > 0)
 {
-    var kullaniciAdi = ViewData["KullaniciAdi"] as string; // ViewData'dan giriş yapan kullanıcı adını alıyoruz.
-
     <table class="table">
         <thead>
             <tr>
@@ -13,7 +11,6 @@
                 <th>Etkinlik Tarihi</th>
                 <th>Etkinlik Saati</th>
                 <th>Konum</th>
-                <th>Oluşturan Kullanıcı</th>
                 <th>İşlem</th>
             </tr>
         </thead>
@@ -27,14 +24,7 @@
                     <td>
                         @if (!string.IsNullOrEmpty(etkinlik.Konum))
                         {
-                            <iframe src="@etkinlik.Konum"
-                                    width="300"
-                                    height="200"
-                                    style="border:0;"
-                                    allowfullscreen=""
-                                    loading="lazy"
-                                    referrerpolicy="no-referrer-when-downgrade">
-                            </iframe>
+                            <span>@etkinlik.Konum</span>
                         }
                         else
                         {
@@ -42,27 +32,80 @@
                         }
                     </td>
                     <td>
-                        @etkinlik.OlusturanKullanici?.KullaniciAdi
-                        @if (!string.IsNullOrEmpty(kullaniciAdi) && etkinlik.OlusturanKullanici?.KullaniciAdi == kullaniciAdi)
-                        {
-                            <span>(Sen)</span>
-                        }
+                        <button class="btn btn-secondary" onclick="toggleMessages(@etkinlik.ID)">Mesajları Görüntüle</button>
                     </td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(kullaniciAdi) && etkinlik.OlusturanKullanici?.KullaniciAdi == kullaniciAdi)
-                        {
-                            <button class="btn btn-secondary" disabled>Etkinliği Sen Oluşturdun</button>
-                        }
-                        else
-                        {
-                            <form method="post" asp-action="EtkinligeKatil" asp-controller="Kullanici">
-                                <input type="hidden" name="etkinlikID" value="@etkinlik.ID" />
-                                <button type="submit" class="btn btn-primary">Etkinliğe Katıl</button>
+                </tr>
+                <tr id="message-box-@etkinlik.ID" style="display: none;">
+                    <td colspan="5">
+                        <div>
+                            <h4>Mesajlar</h4>
+                            <div id="messages-@etkinlik.ID">
+                                <p>Mesajlar yükleniyor...</p>
+                            </div>
+                            <form id="message-form-@etkinlik.ID" onsubmit="sendMessage(event, @etkinlik.ID)">
+                                <textarea id="message-input-@etkinlik.ID" class="form-control" placeholder="Mesajınızı yazın"></textarea>
+                                <button type="submit" class="btn btn-primary mt-2">Gönder</button>
                             </form>
-                        }
+                        </div>
                     </td>
                 </tr>
             }
+            <script>
+                // Mesaj kutusunu açıp kapama
+                function toggleMessages(etkinlikID) {
+                    const messageBox = document.getElementById(`message-box-${etkinlikID}`);
+                    const messagesContainer = document.getElementById(`messages-${etkinlikID}`);
+                    if (messageBox.style.display === "none") {
+                        messageBox.style.display = "table-row";
+                        // Mesajları yükle
+                        fetch(`/Mesaj/MesajlariGetir?etkinlikID=${etkinlikID}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                messagesContainer.innerHTML = data.map(msg => `
+                                                        <div>
+                                                            <strong>${msg.kullaniciAdi}:</strong> ${msg.mesajMetni}
+                                                            <span class="text-muted" style="float: right;">${new Date(msg.gonderimZamani).toLocaleString()}</span>
+                                                        </div>
+                                                    `).join("");
+                            });
+                    } else {
+                        messageBox.style.display = "none";
+                    }
+                }
+
+                // Mesaj gönderme
+                function sendMessage(event, etkinlikID) {
+                    event.preventDefault(); // Formun sayfa yenilemesini engeller
+                    const messageInput = document.getElementById(`message-input-${etkinlikID}`);
+                    const messageText = messageInput.value.trim();
+                    if (!messageText) {
+                        alert("Mesaj boş olamaz!");
+                        return;
+                    }
+
+                    fetch(`/Mesaj/MesajGonder`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            etkinlikID: etkinlikID,
+                            mesajMetni: messageText
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                messageInput.value = ""; // Mesaj kutusunu temizle
+                                toggleMessages(etkinlikID); // Mesajları tekrar yükle
+                            } else {
+                                alert(data.message); // Hata mesajını göster
+                            }
+                        })
+                        .catch(error => alert("Mesaj gönderilirken bir hata oluştu: " + error));
+                }
+            </script>
+
         </tbody>
     </table>
 }
