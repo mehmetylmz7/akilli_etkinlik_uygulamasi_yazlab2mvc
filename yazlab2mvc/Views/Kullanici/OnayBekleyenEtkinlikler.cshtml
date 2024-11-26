@@ -1,6 +1,6 @@
 ﻿@model List<yazlab2mvc.Models.Etkinlikler>
 
-<h2>Katılabileceğiniz Etkinlikler</h2>
+<h2>Onay Bekleyen Etkinlikler</h2>
 
 @if (Model != null && Model.Count > 0)
 {
@@ -11,7 +11,6 @@
                 <th>Etkinlik Tarihi</th>
                 <th>Etkinlik Saati</th>
                 <th>Konum</th>
-                <th>İşlem</th>
             </tr>
         </thead>
         <tbody>
@@ -31,12 +30,6 @@
                             <span>Konum bilgisi mevcut değil</span>
                         }
                     </td>
-                    <td>
-                        <form method="post" action="@Url.Action("EtkinligeKatil", "Kullanici")">
-                            <input type="hidden" name="etkinlikID" value="@etkinlik.ID" />
-                            <button type="submit" class="btn btn-primary">Etkinliğe Katıl</button>
-                        </form>
-                    </td>
                 </tr>
             }
         </tbody>
@@ -44,5 +37,5 @@
 }
 else
 {
-    <p>Katılabileceğiniz etkinlik bulunmamaktadır.</p>
+    <p>Onay bekleyen etkinlik bulunmamaktadır.</p>
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using yazlab2mvc.Models;
 
@@ -30,16 +31,7 @@ namespace yazlab2mvc.Controllers
         }
 
 
-        // Katıldığım Etkinlikler
-        public IActionResult KatildigimEtkinlikler()
-        {
-            var kullaniciID = HttpContext.Session.GetInt32("KullaniciID");
-            var etkinlikler = _context.Katilimcilar.Where(k => k.KullaniciID == kullaniciID)
-                                                  .Select(k => k.Etkinlik)
-                                                  .ToList();
-            return View(etkinlikler);
-        }
-
+    
         // Puan Geçmişim
         public IActionResult Puanlar()
         {
@@ -171,7 +163,10 @@ namespace yazlab2mvc.Controllers
                 var katilimci = new Katilimcilar
                 {
                     KullaniciID = kullaniciID.Value,
-                    EtkinlikID = etkinlik.ID
+                    EtkinlikID = etkinlik.ID,
+                    KatilimDurumu="Katılıyor"
+                    
+                    
                 };
                 _context.Katilimcilar.Add(katilimci);
                 await _context.SaveChangesAsync();
@@ -184,13 +179,6 @@ namespace yazlab2mvc.Controllers
                 ViewBag.Message = "Bir hata oluştu: " + ex.Message;
                 return View(etkinlik);
             }
-        }
-
-        public IActionResult EtkinlikleriGoruntule()
-        {
-            // Tüm etkinlikleri veritabanından çekiyoruz
-            var etkinlikler = _context.Etkinlikler.Include(e => e.OlusturanKullanici).ToList();
-            return View(etkinlikler);
         }
 
 
@@ -215,13 +203,14 @@ namespace yazlab2mvc.Controllers
                 var yeniKatilim = new Katilimcilar
                 {
                     KullaniciID = kullaniciID.Value,
-                    EtkinlikID = etkinlikID
+                    EtkinlikID = etkinlikID,
+                    KatilimDurumu = "Onay Bekliyor" // Katılım durumu
                 };
 
                 _context.Katilimcilar.Add(yeniKatilim);
                 _context.SaveChanges();
 
-                ViewBag.Message = "Etkinliğe başarıyla katıldınız!";
+                ViewBag.Message = "Etkinliğe başarıyla katıldınız, onay bekliyorsunuz.";
             }
             else
             {
@@ -230,6 +219,71 @@ namespace yazlab2mvc.Controllers
 
             return RedirectToAction("EtkinlikleriGoruntule");
         }
+
+
+        public IActionResult OnayBekleyenEtkinlikler()
+        {
+            var kullaniciID = HttpContext.Session.GetInt32("KullaniciID");
+
+            if (!kullaniciID.HasValue)
+            {
+                // Kullanıcı giriş yapmamışsa, giriş yapmasını isteyelim
+                return RedirectToAction("GirisYap", "Kullanici");
+            }
+
+            // Kullanıcının katılım durumunu kontrol ederek, "Onay Bekliyor" olan etkinlikleri alıyoruz
+            var etkinlikler = _context.Katilimcilar
+                                      .Where(k => k.KullaniciID == kullaniciID.Value && k.KatilimDurumu == "Onay Bekliyor")
+                                      .Select(k => k.Etkinlik)
+                                      .ToList();
+
+            return View(etkinlikler);  // View'da etkinlikleri göstereceğiz
+        }
+
+
+        //katılabilecegi etkinlikler 
+        public IActionResult EtkinlikleriGoruntule()
+        {
+            // Kullanıcı ID'sini session'dan al
+            var kullaniciID = HttpContext.Session.GetInt32("KullaniciID");
+
+            // Eğer kullanıcı ID'si null ise, giriş yapmamış demektir
+            if (kullaniciID == null)
+            {
+                // Kullanıcı giriş yapmamışsa, uygun bir yönlendirme veya hata mesajı ekleyebilirsiniz
+                return RedirectToAction("GirisYap", "Kullanici");
+            }
+
+            // Katilimcilar tablosunda bu kullanıcının katılmadığı etkinlikleri almak
+            var etkinlikler = _context.Etkinlikler
+                                    .Where(e => !_context.Katilimcilar
+                                        .Any(k => k.KullaniciID == kullaniciID && k.EtkinlikID == e.ID))
+                                    .ToList();
+
+            return View(etkinlikler);
+        }
+
+        // Katıldığım Etkinlikler
+        public IActionResult KatildigimEtkinlikler()
+        {
+            var kullaniciID = HttpContext.Session.GetInt32("KullaniciID");
+
+            if (!kullaniciID.HasValue)
+            {
+                return RedirectToAction("GirisYap", "Kullanici");  // Giriş yapmamış kullanıcıyı yönlendir
+            }
+
+            // Katılım durumu "Katılıyor" olan etkinlikleri alıyoruz
+            var etkinlikler = _context.Katilimcilar
+                                      .Where(k => k.KullaniciID == kullaniciID && k.KatilimDurumu == "Katılıyor")
+                                      .Select(k => k.Etkinlik)
+                                      .ToList();
+
+            return View(etkinlikler);
+        }
+
+
+
 
     }
 }
