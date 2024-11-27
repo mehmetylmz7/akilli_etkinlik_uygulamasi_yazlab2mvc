@@ -1,0 +1,40 @@
+﻿@{
+    ViewData["Title"] = "Mesaj Gönder";
+    var mesajlar = ViewData["Mesajlar"] as List<yazlab2mvc.Models.Mesajlar>;
+}
+
+<h2>Mesaj Gönder</h2>
+
+<p><strong>Etkinlik:</strong> @ViewData["EtkinlikAdi"]</p>
+
+<!-- Mesaj Gönderme Formu -->
+<form method="post" action="@Url.Action("MesajGonder", "Kullanici")">
+    <input type="hidden" name="EtkinlikID" value="@ViewData["EtkinlikID"]" />
+    <div class="form-group">
+        <label for="Mesaj">Mesajınızı Yazın:</label>
+        <textarea id="Mesaj" name="Mesaj" class="form-control" rows="4" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Mesaj Gönder</button>
+</form>
+
+<hr />
+
+<!-- Mesajlar Listesi -->
+<h3>Mesajlar</h3>
+@if (mesajlar != null && mesajlar.Count > 0)
+{
+    <ul class="list-group">
+        @foreach (var mesaj in mesajlar)
+        {
+            <li class="list-group-item">
+                <p><strong>Gönderen:</strong> @mesaj.GondericiID</p> <!-- Gerekirse kullanıcı adını çekebilirsiniz -->
+                <p>@mesaj.MesajMetni</p>
+                <small class="text-muted">Gönderim Tarihi: @mesaj.GonderimZamani.ToString("dd MMMM yyyy HH:mm")</small>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>Bu etkinlikte henüz mesaj yok.</p>
+}

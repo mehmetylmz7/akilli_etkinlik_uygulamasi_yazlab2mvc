@@ -283,6 +283,62 @@ namespace yazlab2mvc.Controllers
         }
 
 
+        [HttpGet]
+        public IActionResult MesajGonder(int etkinlikID)
+        {
+            // Etkinliği al
+            var etkinlik = _context.Etkinlikler.FirstOrDefault(e => e.ID == etkinlikID);
+
+            if (etkinlik == null)
+            {
+                TempData["ErrorMessage"] = "Etkinlik bulunamadı.";
+                return RedirectToAction("KatildigimEtkinlikler", "Kullanici");
+            }
+
+            // Etkinlikle ilgili mesajları al
+            var mesajlar = _context.Mesajlar
+                .Where(m => m.EtkinlikID == etkinlikID)
+                .OrderByDescending(m => m.GonderimZamani) // Tarihe göre sıralama
+                .ToList();
+
+            // ViewData ile etkinlik bilgisi ve mesajları gönder
+            ViewData["EtkinlikAdi"] = etkinlik.EtkinlikAdi;
+            ViewData["EtkinlikID"] = etkinlikID;
+            ViewData["Mesajlar"] = mesajlar;
+
+            return View();
+        }
+
+
+
+        [HttpPost]
+        public IActionResult MesajGonder(int etkinlikID, string mesaj)
+        {
+            var kullaniciID = HttpContext.Session.GetInt32("KullaniciID");
+
+            if (!kullaniciID.HasValue)
+            {
+                ViewBag.Message = "Kullanıcı giriş yapmamış. Lütfen giriş yapın.";
+                return RedirectToAction("GirisYap", "Kullanici");
+            }
+
+            // Mesajı kaydet
+            var yeniMesaj = new Mesajlar
+            {
+                GondericiID = kullaniciID.Value,
+                AliciID = kullaniciID.Value, // Alıcı yok
+                EtkinlikID = etkinlikID,
+                MesajMetni = mesaj,
+                GonderimZamani = DateTime.Now
+            };
+
+            _context.Mesajlar.Add(yeniMesaj);
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "Mesaj başarıyla gönderildi!";
+            return RedirectToAction("MesajGonder", new { etkinlikID = etkinlikID });
+        }
+
 
 
     }
