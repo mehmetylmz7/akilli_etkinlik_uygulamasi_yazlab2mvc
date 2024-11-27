@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Şifre Yenileme";
+}
+
+<h2>Şifre Yenileme</h2>
+
+<form method="post" asp-action="SifreYenileme">
+    <label>Kullanıcı Adı:</label>
+    <input name="kullaniciAdi" type="text" class="form-control" required />
+
+    <label>E-posta:</label>
+    <input name="eposta" type="email" class="form-control" required />
+
+    <label>Telefon Numarası:</label>
+    <input name="telefonNumarasi" type="text" class="form-control" required />
+
+    <label>Yeni Şifre:</label>
+    <input name="yeniSifre" type="password" class="form-control" required />
+
+    <button type="submit" class="btn btn-primary mt-3">Şifreyi Yenile</button>
+</form>

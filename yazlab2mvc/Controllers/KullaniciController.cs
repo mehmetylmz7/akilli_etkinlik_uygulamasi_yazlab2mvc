@@ -340,6 +340,58 @@ namespace yazlab2mvc.Controllers
         }
 
 
+        // Şifre yenileme sayfası GET
+        [HttpGet]
+        public IActionResult SifreYenileme()
+        {
+            return View();
+        }
 
+        // Şifre yenileme POST işlemi
+        [HttpPost]
+        public async Task<IActionResult> SifreYenileme(string kullaniciAdi, string eposta, string telefonNumarasi, string yeniSifre)
+        {
+            // Formdaki alanların boş olup olmadığını kontrol ediyoruz
+            if (string.IsNullOrEmpty(kullaniciAdi) || string.IsNullOrEmpty(eposta) || string.IsNullOrEmpty(telefonNumarasi) || string.IsNullOrEmpty(yeniSifre))
+            {
+                ViewBag.Message = "Tüm alanları doldurduğunuzdan emin olun.";
+                ViewBag.IsSuccess = false;
+                return View();
+            }
+
+            // Kullanıcı adı, E-posta ve Telefon Numarası ile kullanıcıyı veritabanında arıyoruz
+            var kullanici = await _context.Kullanicilar
+                .FirstOrDefaultAsync(u => u.KullaniciAdi == kullaniciAdi && u.Eposta == eposta && u.TelefonNumarasi == telefonNumarasi);
+
+            // Kullanıcı bulunamazsa hata mesajı gösteriyoruz
+            if (kullanici == null)
+            {
+                ViewBag.Message = "Bu bilgilerle kayıtlı kullanıcı bulunamadı.";
+                ViewBag.IsSuccess = false;
+                return View();
+            }
+
+            // Yeni şifreyi güncelliyoruz
+            kullanici.Sifre = yeniSifre;
+
+            try
+            {
+                _context.Update(kullanici);
+                await _context.SaveChangesAsync();
+
+                ViewBag.Message = "Şifreniz başarıyla güncellenmiştir.";
+                ViewBag.IsSuccess = true;
+
+                // Kullanıcıyı giriş sayfasına yönlendiriyoruz
+                return RedirectToAction("GirisYap", "Kullanici");
+            }
+            catch (Exception ex)
+            {
+                // Hata durumu
+                ViewBag.Message = "Şifre güncellenirken bir hata oluştu: " + ex.Message;
+                ViewBag.IsSuccess = false;
+                return View();
+            }
+        }
     }
 }

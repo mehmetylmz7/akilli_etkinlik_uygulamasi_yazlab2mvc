@@ -15,7 +15,7 @@
     <textarea asp-for="Aciklama" class="form-control"></textarea>
 
     <label>Tarih:</label>
-    <input asp-for="Tarih" type="date" class="form-control" />
+    <input asp-for="Tarih" type="date" class="form-control" id="tarih" />
 
     <label>Saat:</label>
     <input asp-for="Saat" type="time" class="form-control" />
@@ -62,5 +62,17 @@
                 document.getElementById("konum").value = `${e.latLng.lat()}, ${e.latLng.lng()}`;
             });
         }
+
+        // Bugünün tarihini al ve tarih inputunun min özelliğine ekle
+        window.onload = function () {
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); // Ocak ayı 0'dan başladığı için +1
+            var yyyy = today.getFullYear();
+            today = yyyy + '-' + mm + '-' + dd;
+
+            // Tarih inputunun min özelliğini ayarla
+            document.getElementById("tarih").setAttribute("min", today);
+        };
     </script>
 }
