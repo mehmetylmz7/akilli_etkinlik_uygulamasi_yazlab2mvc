@@ -1,0 +1,26 @@
+﻿@{
+    Layout = "_Layout"; // Eğer layout kullanıyorsanız
+}
+
+<h2>Admin Giriş Sayfası</h2>
+
+<form method="post">
+    <div>
+        <label for="KullaniciAdi">Kullanıcı Adı</label>
+        <input type="text" id="KullaniciAdi" name="KullaniciAdi" required />
+    </div>
+    <div>
+        <label for="Sifre">Şifre</label>
+        <input type="password" id="Sifre" name="Sifre" required />
+    </div>
+    <div>
+        <button type="submit">Giriş Yap</button>
+    </div>
+</form>
+
+@if (ViewBag.ErrorMessage != null)
+{
+    <div style="color: red;">
+        @ViewBag.ErrorMessage
+    </div>
+}Giris

@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Kullanıcılar";
+}
+
+<h2>Kullanıcılar</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Kullanıcı Adı</th>
+            <th>Email</th>
+            <th>İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var kullanici in Model)
+        {
+            <tr>
+                <td>@kullanici.KullaniciAdi</td>
+                <td>@kullanici.Eposta</td>
+                <td>
+                    <form method="post" action="@Url.Action("KullaniciSil", "Admin")">
+                        <input type="hidden" name="id" value="@kullanici.ID" />
+                        <button type="submit">Sil</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

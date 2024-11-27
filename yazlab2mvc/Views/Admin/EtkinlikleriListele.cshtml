@@ -1,0 +1,51 @@
+﻿@{
+    ViewData["Title"] = "Etkinlikler";
+}
+
+<h2>Etkinlikler</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Etkinlik Adı</th>
+            <th>Durum</th>
+            <th>İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var etkinlik in Model)
+        {
+            // Katılımcılar koleksiyonu null mı kontrol et
+            var katilimci = etkinlik.Katilimcilar?.FirstOrDefault(); // null kontrolü ekledik
+
+            // Eğer etkinlikte katılımcı yoksa, "Durum" kısmını boş bırakabiliriz.
+            var katilimDurumu = katilimci != null ? katilimci.KatilimDurumu : "Bilinmiyor"; // Eğer null ise "Bilinmiyor" olarak ayarla
+
+            <tr>
+                <td>@etkinlik.EtkinlikAdi</td>
+                <td>@katilimDurumu</td>
+                <td>
+                    @if (katilimDurumu != "Onaylı")
+                    {
+                        <form method="post" action="@Url.Action("EtkinlikOnayla", "Admin")">
+                            <input type="hidden" name="id" value="@etkinlik.ID" />
+                            <button type="submit">Onayla</button>
+                        </form>
+                    }
+                    @if (katilimDurumu != "Reddedildi")
+                    {
+                        <form method="post" action="@Url.Action("EtkinlikRed", "Admin")">
+                            <input type="hidden" name="id" value="@etkinlik.ID" />
+                            <button type="submit">Reddet</button>
+                        </form>
+                    }
+                    <!-- Etkinlik Silme Butonu -->
+                    <form method="post" action="@Url.Action("EtkinlikSil", "Admin")">
+                        <input type="hidden" name="id" value="@etkinlik.ID" />
+                        <button type="submit" onclick="return confirm('Bu etkinliği silmek istediğinizden emin misiniz?');">Sil</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
