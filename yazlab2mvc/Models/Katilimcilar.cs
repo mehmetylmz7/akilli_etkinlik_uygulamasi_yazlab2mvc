@@ -11,7 +11,7 @@ namespace yazlab2mvc.Models
         [Key, Column(Order = 1)]
         public int EtkinlikID { get; set; }
 
-        public string KatilimDurumu {  get; set; }
+      
 
         public virtual Kullanicilar Kullanici { get; set; }
         public virtual Etkinlikler Etkinlik { get; set; }

@@ -1,0 +1,29 @@
+﻿@model yazlab2mvc.Models.Kullanicilar
+
+<h2>Bilgilerimi Güncelle</h2>
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert @(ViewBag.IsSuccess ? "alert-success" : "alert-danger")">
+        @ViewBag.Message
+    </div>
+}
+
+<form asp-action="ProfilGuncelle" method="post">
+    <label>Ad:</label>
+    <input asp-for="Ad" class="form-control" />
+
+    <label>Soyad:</label>
+    <input asp-for="Soyad" class="form-control" />
+
+    <label>E-posta:</label>
+    <input asp-for="Eposta" type="email" class="form-control" />
+
+    <label>Telefon Numarası:</label>
+    <input asp-for="TelefonNumarasi" class="form-control" />
+
+    <label>Konum:</label>
+    <input asp-for="Konum" class="form-control" />
+
+    <button type="submit" class="btn btn-primary mt-3">Güncelle</button>
+</form>

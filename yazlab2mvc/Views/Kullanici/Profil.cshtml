@@ -9,6 +9,8 @@
     <p><strong>Telefon:</strong> @Model.TelefonNumarasi</p>
     <p><strong>Konum:</strong> @Model.Konum</p>
 
+    <a href="@Url.Action("ProfilGuncelle", "Kullanici")" class="btn btn-secondary mt-3">Bilgilerimi Güncelle</a>
+
     @if (!string.IsNullOrEmpty(Model.ProfilFotografi))
     {
         <div>

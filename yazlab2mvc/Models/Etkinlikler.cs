@@ -25,6 +25,8 @@ namespace yazlab2mvc.Models
         public string Konum { get; set; }
         public string Kategori { get; set; }
 
+        public string EtkinlikDurumu {  get; set; } 
+
         // Etkinliği oluşturan kullanıcı
         public int OlusturanKullaniciID { get; set; }
         public virtual Kullanicilar OlusturanKullanici { get; set; }
