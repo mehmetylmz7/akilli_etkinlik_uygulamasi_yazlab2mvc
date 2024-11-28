@@ -9,7 +9,8 @@
     </div>
 }
 
-<form asp-action="ProfilGuncelle" method="post">
+<form asp-action="ProfilGuncelle" method="post" enctype="multipart/form-data">
+    <!-- enctype eklendi -->
     <label>Ad:</label>
     <input asp-for="Ad" class="form-control" />
 
@@ -25,5 +26,12 @@
     <label>Konum:</label>
     <input asp-for="Konum" class="form-control" />
 
+    <!-- Profil Fotoğrafı Yükleme Alanı -->
+    <div class="form-group mt-3">
+        <label>Profil Fotoğrafı:</label>
+        <input type="file" name="ProfilFotografi" class="form-control" />
+    </div>
+
     <button type="submit" class="btn btn-primary mt-3">Güncelle</button>
 </form>
+

@@ -56,6 +56,27 @@ namespace yazlab2mvc.Controllers
                 try
                 {
                     // Kullanıcı bilgilerini veritabanına kaydet
+                    kullanici.Sifre = Sifreleme.sifrele(kullanici.Sifre, "kkkk1234");
+
+
+                    if (Request.Form.Files.Count > 0)
+                    {
+                        var file = Request.Form.Files[0]; // İlk dosyayı al
+                        string dosyaAdi = Path.GetFileName(file.FileName);
+                        string uzanti = Path.GetExtension(file.FileName);
+                        string yeniDosyaAdi = Guid.NewGuid().ToString() + uzanti; // Benzersiz bir isim oluştur
+                        string yol = Path.Combine("wwwroot/Image", yeniDosyaAdi); // Dosya kaydedilecek yol
+
+                        using (var stream = new FileStream(yol, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream); // Dosyayı fiziksel olarak kaydet
+                        }
+
+                        kullanici.ProfilFotografi = "/Image/" + yeniDosyaAdi; // Veri tabanına kaydedilecek yol
+                    }
+
+
+
                     _context.Kullanicilar.Add(kullanici);
                     await _context.SaveChangesAsync();
 
@@ -79,12 +100,7 @@ namespace yazlab2mvc.Controllers
 
             return View(kullanici); // Model doğrulama hataları varsa formu tekrar göster
         }
-        // GET: Kullanici/GirisYap
-        [HttpGet]
-        public IActionResult GirisYap()
-        {
-            return View();
-        }
+        
 
         public IActionResult KullaniciArayuz()
         {
@@ -107,12 +123,20 @@ namespace yazlab2mvc.Controllers
 
 
 
+        // GET: Kullanici/GirisYap
+        [HttpGet]
+        public IActionResult GirisYap()
+        {
+            return View();
+        }
 
         // POST: Kullanici/GirisYap
         [HttpPost]
         public IActionResult GirisYap(string kullaniciAdi, string sifre)
         {
+            sifre = Sifreleme.sifrele(sifre, "kkkk1234");
             var kullanici = _context.Kullanicilar
+                
                 .FirstOrDefault(k => k.KullaniciAdi == kullaniciAdi && k.Sifre == sifre);
 
             if (kullanici != null)
@@ -130,6 +154,9 @@ namespace yazlab2mvc.Controllers
                 return View();
             }
         }
+
+
+
         [HttpGet]
         public IActionResult EtkinlikOlustur()
         {
@@ -390,6 +417,7 @@ namespace yazlab2mvc.Controllers
             }
 
             // Yeni şifreyi güncelliyoruz
+            yeniSifre = Sifreleme.sifrele(yeniSifre, "kkkk1234");
             kullanici.Sifre = yeniSifre;
 
             try
@@ -431,6 +459,7 @@ namespace yazlab2mvc.Controllers
             return View(kullanici);
         }
 
+
         [HttpPost]
         public async Task<IActionResult> ProfilGuncelle(Kullanicilar guncelKullanici)
         {
@@ -446,15 +475,46 @@ namespace yazlab2mvc.Controllers
                 return NotFound("Kullanıcı bulunamadı.");
             }
 
-            // Güncellemeleri uygula
+            // Kullanıcı bilgilerini güncelle
             mevcutKullanici.Ad = guncelKullanici.Ad;
             mevcutKullanici.Soyad = guncelKullanici.Soyad;
             mevcutKullanici.Eposta = guncelKullanici.Eposta;
             mevcutKullanici.TelefonNumarasi = guncelKullanici.TelefonNumarasi;
             mevcutKullanici.Konum = guncelKullanici.Konum;
 
+            // Profil fotoğrafını işlemek
             try
             {
+                if (Request.Form.Files.Count > 0)
+                {
+                    var dosya = Request.Form.Files[0];
+                    if (dosya != null && dosya.Length > 0)
+                    {
+                        string uzanti = Path.GetExtension(dosya.FileName);
+                        string yeniDosyaAdi = Guid.NewGuid().ToString() + uzanti; // Benzersiz isim
+                        string kaydetmeYolu = Path.Combine("wwwroot/Image", yeniDosyaAdi);
+
+                        // Dosyayı kaydet
+                        using (var stream = new FileStream(kaydetmeYolu, FileMode.Create))
+                        {
+                            await dosya.CopyToAsync(stream);
+                        }
+
+                        // Eski dosyayı sil (isteğe bağlı)
+                        if (!string.IsNullOrEmpty(mevcutKullanici.ProfilFotografi))
+                        {
+                            string eskiDosyaYolu = Path.Combine("wwwroot", mevcutKullanici.ProfilFotografi.TrimStart('/'));
+                            if (System.IO.File.Exists(eskiDosyaYolu))
+                            {
+                                System.IO.File.Delete(eskiDosyaYolu);
+                            }
+                        }
+
+                        // Yeni profil fotoğrafı yolunu kaydet
+                        mevcutKullanici.ProfilFotografi = "/Image/" + yeniDosyaAdi;
+                    }
+                }
+
                 await _context.SaveChangesAsync();
                 ViewBag.Message = "Bilgileriniz başarıyla güncellendi.";
                 ViewBag.IsSuccess = true;

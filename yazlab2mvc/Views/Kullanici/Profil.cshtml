@@ -1,24 +1,24 @@
-﻿@model yazlab2mvc.Models.Kullanicilar
+﻿    @model yazlab2mvc.Models.Kullanicilar
 
-<h2>Profilim</h2>
+    <h2>Profilim</h2>
 
-<div>
-    <p><strong>Ad:</strong> @Model.Ad</p>
-    <p><strong>Soyad:</strong> @Model.Soyad</p>
-    <p><strong>Email:</strong> @Model.Eposta</p>
-    <p><strong>Telefon:</strong> @Model.TelefonNumarasi</p>
-    <p><strong>Konum:</strong> @Model.Konum</p>
+    <div>
+        <p><strong>Ad:</strong> @Model.Ad</p>
+        <p><strong>Soyad:</strong> @Model.Soyad</p>
+        <p><strong>Email:</strong> @Model.Eposta</p>
+        <p><strong>Telefon:</strong> @Model.TelefonNumarasi</p>
+        <p><strong>Konum:</strong> @Model.Konum</p>
 
-    <a href="@Url.Action("ProfilGuncelle", "Kullanici")" class="btn btn-secondary mt-3">Bilgilerimi Güncelle</a>
+        <a href="@Url.Action("ProfilGuncelle", "Kullanici")" class="btn btn-secondary mt-3">Bilgilerimi Güncelle</a>
 
-    @if (!string.IsNullOrEmpty(Model.ProfilFotografi))
-    {
-        <div>
-            <img src="@Model.ProfilFotografi" alt="Profil Fotoğrafı" class="img-thumbnail" width="150" />
-        </div>
-    }
-    else
-    {
-        <p>Profil fotoğrafı yok.</p>
-    }
-</div>
+        @if (!string.IsNullOrEmpty(Model.ProfilFotografi))
+        {
+            <div>
+                <img src="@Model.ProfilFotografi" alt="Profil Fotoğrafı" class="img-thumbnail" width="150" />
+            </div>
+        }
+        else
+        {
+            <p>Profil fotoğrafı yok.</p>
+        }
+    </div>

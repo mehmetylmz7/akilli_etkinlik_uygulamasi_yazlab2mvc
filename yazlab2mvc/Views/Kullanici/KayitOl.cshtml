@@ -9,43 +9,73 @@
     </div>
 }
 
-<form asp-action="KayitOl" method="post">
-    <label>Kullanıcı Adı:</label>
-    <input asp-for="KullaniciAdi" class="form-control" />
-
-    <label>Şifre:</label>
-    <input asp-for="Sifre" type="password" class="form-control" />
-
-    <label>E-posta:</label>
-    <input asp-for="Eposta" type="email" class="form-control" />
-
-    <label>Konum:</label>
-    <input asp-for="Konum" class="form-control" />
-
-    <label>İlgi Alanları:</label>
-    <input asp-for="IlgiAlanlari" class="form-control" />
-
-    <label>Ad:</label>
-    <input asp-for="Ad" class="form-control" />
-
-    <label>Soyad:</label>
-    <input asp-for="Soyad" class="form-control" />
-
-    <label>Doğum Tarihi:</label>
-    <input asp-for="DogumTarihi" type="date" class="form-control" max="@DateTime.Now.ToString("yyyy-MM-dd")" />
-
-    <label>Cinsiyet:</label>
-    <select asp-for="Cinsiyet" class="form-control">
-        <option value="Erkek">Erkek</option>
-        <option value="Kadin">Kadın</option>
-        <option value="Diger">Diğer</option>
-    </select>
-
-    <label>Telefon Numarası:</label>
-    <input asp-for="TelefonNumarasi" class="form-control" />
+<form asp-action="KayitOl" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label asp-for="KullaniciAdi"></label>
+        <input asp-for="KullaniciAdi" class="form-control" />
+        <span asp-validation-for="KullaniciAdi" class="text-danger"></span>
+    </div>
 
     <div class="form-group">
-        <label asp-for="ProfilFotografi" class="control-label"></label>
+        <label asp-for="Sifre"></label>
+        <input asp-for="Sifre" type="password" class="form-control" />
+        <span asp-validation-for="Sifre" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Eposta"></label>
+        <input asp-for="Eposta" type="email" class="form-control" />
+        <span asp-validation-for="Eposta" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Konum"></label>
+        <input asp-for="Konum" class="form-control" />
+        <span asp-validation-for="Konum" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IlgiAlanlari"></label>
+        <input asp-for="IlgiAlanlari" class="form-control" />
+        <span asp-validation-for="IlgiAlanlari" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Ad"></label>
+        <input asp-for="Ad" class="form-control" />
+        <span asp-validation-for="Ad" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Soyad"></label>
+        <input asp-for="Soyad" class="form-control" />
+        <span asp-validation-for="Soyad" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="DogumTarihi"></label>
+        <input asp-for="DogumTarihi" type="date" class="form-control" max="@DateTime.Now.ToString("yyyy-MM-dd")" />
+        <span asp-validation-for="DogumTarihi" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Cinsiyet"></label>
+        <select asp-for="Cinsiyet" class="form-control">
+            <option value="Erkek">Erkek</option>
+            <option value="Kadin">Kadın</option>
+            <option value="Diger">Diğer</option>
+        </select>
+        <span asp-validation-for="Cinsiyet" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="TelefonNumarasi"></label>
+        <input asp-for="TelefonNumarasi" class="form-control" />
+        <span asp-validation-for="TelefonNumarasi" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ProfilFotografi"></label>
         <input asp-for="ProfilFotografi" type="file" class="form-control" />
         <span asp-validation-for="ProfilFotografi" class="text-danger"></span>
     </div>
