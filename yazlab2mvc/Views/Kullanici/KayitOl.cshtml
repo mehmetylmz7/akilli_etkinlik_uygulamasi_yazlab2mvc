@@ -35,12 +35,6 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="IlgiAlanlari"></label>
-        <input asp-for="IlgiAlanlari" class="form-control" />
-        <span asp-validation-for="IlgiAlanlari" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
         <label asp-for="Ad"></label>
         <input asp-for="Ad" class="form-control" />
         <span asp-validation-for="Ad" class="text-danger"></span>
@@ -62,8 +56,8 @@
         <label asp-for="Cinsiyet"></label>
         <select asp-for="Cinsiyet" class="form-control">
             <option value="Erkek">Erkek</option>
-            <option value="Kadin">Kadın</option>
-            <option value="Diger">Diğer</option>
+            <option value="Kadın">Kadın</option>
+            <option value="Diğer">Diğer</option>
         </select>
         <span asp-validation-for="Cinsiyet" class="text-danger"></span>
     </div>
@@ -78,6 +72,71 @@
         <label asp-for="ProfilFotografi"></label>
         <input asp-for="ProfilFotografi" type="file" class="form-control" />
         <span asp-validation-for="ProfilFotografi" class="text-danger"></span>
+    </div>
+
+    <!-- İlgi Alanları Seçimi -->
+    <div class="form-group">
+        <label>İlgi Alanlarınız:</label>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Müzik" /> Müzik
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Spor" /> Spor
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Sanat" /> Sanat
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Yemek" /> Yemek
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Kitap" /> Kitap
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Film ve Dizi" /> Film ve Dizi
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Bilim ve Teknoloji" /> Bilim ve Teknoloji
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Fotoğrafçılık" /> Fotoğrafçılık
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Yoga ve Meditasyon" /> Yoga ve Meditasyon
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Tarih ve Kültür" /> Tarih ve Kültür
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Dans" /> Dans
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Doğa ve Çevre" /> Doğa ve Çevre
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Bahçecilik" /> Bahçecilik
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Moda" /> Moda
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Oyun" /> Oyun
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Seyahat" /> Seyahat
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Fitness" /> Fitness
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Gönüllülük" /> Gönüllülük
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Moda ve Güzellik" /> Moda ve Güzellik
+        </div>
+        <div>
+            <input type="checkbox" name="IlgiAlanlari" value="Koleksiyonculuk" /> Koleksiyonculuk
+        </div>
     </div>
 
     <button type="submit" class="btn btn-primary mt-3">Kayıt Ol</button>

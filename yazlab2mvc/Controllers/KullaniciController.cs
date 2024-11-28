@@ -31,14 +31,42 @@ namespace yazlab2mvc.Controllers
         }
 
 
-    
+
         // Puan Geçmişim
         public IActionResult Puanlar()
         {
+            // Kullanıcı oturum kontrolü
             var kullaniciID = HttpContext.Session.GetInt32("KullaniciID");
-            var puanlar = _context.Puanlar.Where(p => p.KullaniciID == kullaniciID).ToList();
-            return View(puanlar);
+            if (!kullaniciID.HasValue)
+            {
+                TempData["Message"] = "Lütfen puan geçmişinizi görmek için giriş yapın.";
+                return RedirectToAction("GirisYap", "Kullanici");
+            }
+
+            try
+            {
+                // Kullanıcının puan geçmişini al
+                var puanlar = _context.Puanlar
+                    .Where(p => p.KullaniciID == kullaniciID.Value)
+                    .OrderByDescending(p => p.KazanilanTarih) // Tarihe göre sıralama
+                    .ToList();
+
+                // Hiç puan kazanmadıysa bir mesaj göster
+                if (!puanlar.Any())
+                {
+                    ViewBag.Message = "Henüz puan kazanmadınız.";
+                }
+
+                return View(puanlar);
+            }
+            catch (Exception ex)
+            {
+                // Hata durumunda mesaj döndür
+                ViewBag.Message = "Puan geçmişinizi yüklerken bir hata oluştu: " + ex.Message;
+                return View(new List<Puanlar>()); // Boş liste döndür
+            }
         }
+
 
 
 
@@ -58,6 +86,13 @@ namespace yazlab2mvc.Controllers
                     // Kullanıcı bilgilerini veritabanına kaydet
                     kullanici.Sifre = Sifreleme.sifrele(kullanici.Sifre, "kkkk1234");
 
+                    // İlgi alanları seçildiyse birleştir
+                    var ilgiAlanlari = Request.Form["IlgiAlanlari"];
+                    if (ilgiAlanlari.Count > 0)
+                    {
+                        // Seçilen ilgi alanlarını virgülle birleştir
+                        kullanici.IlgiAlanlari = string.Join(", ", ilgiAlanlari);
+                    }
 
                     if (Request.Form.Files.Count > 0)
                     {
@@ -75,32 +110,20 @@ namespace yazlab2mvc.Controllers
                         kullanici.ProfilFotografi = "/Image/" + yeniDosyaAdi; // Veri tabanına kaydedilecek yol
                     }
 
-
-
-                    _context.Kullanicilar.Add(kullanici);
+                    _context.Kullanicilar.Add(kullanici); // Veritabanına kaydet
                     await _context.SaveChangesAsync();
-
-                    ViewBag.Message = "Kullanıcı başarıyla eklendi!";
-                    ViewBag.IsSuccess = true; // Başarı durumu
+                    TempData["Message"] = "Kayıt başarılı!";
+                    return RedirectToAction("KayitOl");
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    // Hata durumunda ViewBag.Message'e hata mesajını ekleyin
-                    ViewBag.Message = "Kayıt sırasında bir hata oluştu: " + ex.Message;
-                    ViewBag.IsSuccess = false; // Başarı durumu false
+                    TempData["Message"] = "Bir hata oluştu!";
+                    return RedirectToAction("KayitOl");
                 }
-
-                //return View();
             }
-            else
-            {
-                ViewBag.Message = "Model State is invalid!";
-                ViewBag.IsSuccess = false; // Başarı durumu false
-            }
-
-            return View(kullanici); // Model doğrulama hataları varsa formu tekrar göster
+            return View(kullanici);
         }
-        
+
 
         public IActionResult KullaniciArayuz()
         {
@@ -182,14 +205,14 @@ namespace yazlab2mvc.Controllers
                 // Kullanıcı ID'sini etkinlik ile eşleştir
                 etkinlik.OlusturanKullaniciID = kullaniciID.Value;
 
-                // EtkinlikDurumu'nu otomatik olarak "Onay Bekliyor" şeklinde ata
+                // Etkinlik durumunu otomatik olarak "Onay Bekliyor" şeklinde ayarla
                 etkinlik.EtkinlikDurumu = "Onay Bekliyor";
 
                 // Etkinliği veritabanına ekle
                 _context.Etkinlikler.Add(etkinlik);
-                await _context.SaveChangesAsync(); // SaveChanges sonrası etkinlik ID'si oluşturulur
+                await _context.SaveChangesAsync(); // Save sonrası ID atanır
 
-                // Katilimcilar tablosuna etkinlik oluşturucusunu ekle
+                // Etkinliği oluşturan kullanıcıyı Katilimcilar tablosuna ekle
                 var katilimci = new Katilimcilar
                 {
                     KullaniciID = kullaniciID.Value,
@@ -198,18 +221,27 @@ namespace yazlab2mvc.Controllers
                 _context.Katilimcilar.Add(katilimci);
                 await _context.SaveChangesAsync();
 
-                ViewBag.Message = "Etkinlik başarıyla oluşturuldu ve katılım eklendi!";
+                // Kullanıcıya 15 puan ekle
+                await PuanEkle(kullaniciID.Value, 15, "Etkinlik oluşturma");
+
+                // Başarılı mesaj
+                ViewBag.Message = "Etkinlik başarıyla oluşturuldu ve 15 puan kazandınız!";
                 return RedirectToAction("KullaniciArayuz", "Kullanici");
             }
             catch (Exception ex)
             {
+                // Hata durumunda kullanıcıya hata mesajı göster ve mevcut verileri geri gönder
                 ViewBag.Message = "Bir hata oluştu: " + ex.Message;
                 return View(etkinlik);
             }
         }
 
+
+
+
+
         [HttpPost]
-        public IActionResult EtkinligeKatil(int etkinlikID)
+        public async Task<IActionResult> EtkinligeKatil(int etkinlikID)
         {
             var kullaniciID = HttpContext.Session.GetInt32("KullaniciID");
 
@@ -219,13 +251,13 @@ namespace yazlab2mvc.Controllers
                 return RedirectToAction("GirisYap", "Kullanici");
             }
 
-            // Kullanıcı daha önce bu etkinliğe katılmış mı kontrol ediliyor
+            // Kullanıcının bu etkinliğe daha önce katılıp katılmadığını kontrol et
             var mevcutKatilim = _context.Katilimcilar
                 .FirstOrDefault(k => k.KullaniciID == kullaniciID.Value && k.EtkinlikID == etkinlikID);
 
             if (mevcutKatilim == null)
             {
-                // Katılım bilgisi ekleniyor
+                // Kullanıcının etkinlik katılımını kaydet
                 var yeniKatilim = new Katilimcilar
                 {
                     KullaniciID = kullaniciID.Value,
@@ -233,9 +265,21 @@ namespace yazlab2mvc.Controllers
                 };
 
                 _context.Katilimcilar.Add(yeniKatilim);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
-                ViewBag.Message = "Etkinliğe başarıyla katıldınız, onay bekliyorsunuz.";
+                // Kullanıcının daha önce herhangi bir etkinliğe katılıp katılmadığını kontrol et
+                bool ilkKatilim = !_context.Katilimcilar.Any(k => k.KullaniciID == kullaniciID.Value && k.EtkinlikID != etkinlikID);
+
+                if (ilkKatilim)
+                {
+                    // İlk katılım bonusu
+                    await PuanEkle(kullaniciID.Value, 20, "İlk etkinlik katılımı");
+                }
+
+                // Etkinliğe katılım puanı
+                await PuanEkle(kullaniciID.Value, 10, "Etkinliğe katılım");
+
+                ViewBag.Message = "Etkinliğe başarıyla katıldınız, 10 puan kazandınız!";
             }
             else
             {
@@ -244,6 +288,7 @@ namespace yazlab2mvc.Controllers
 
             return RedirectToAction("EtkinlikleriGoruntule");
         }
+
 
 
         public IActionResult OnayBekleyenEtkinlikler()
@@ -526,6 +571,22 @@ namespace yazlab2mvc.Controllers
             }
 
             return View(mevcutKullanici);
+        }
+
+
+
+        public async Task PuanEkle(int kullaniciID, int puan, string aciklama)
+        {
+            var yeniPuan = new Puanlar
+            {
+                KullaniciID = kullaniciID,
+                KazanilanTarih = DateTime.Now,
+                Puan = puan
+            };
+
+            _context.Puanlar.Add(yeniPuan);
+            await _context.SaveChangesAsync();
+
         }
 
     }

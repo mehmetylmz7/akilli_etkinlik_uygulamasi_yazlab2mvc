@@ -21,7 +21,10 @@ namespace yazlab2mvc.Models
         public string Eposta { get; set; }
 
         public string Konum { get; set; }
+
         public string IlgiAlanlari { get; set; }
+
+
         public string Ad { get; set; }
         public string Soyad { get; set; }
 

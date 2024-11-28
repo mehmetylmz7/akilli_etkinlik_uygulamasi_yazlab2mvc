@@ -1,30 +1,53 @@
-﻿ @model List<yazlab2mvc.Models.Puanlar>
+﻿@model IEnumerable<yazlab2mvc.Models.Puanlar>
 
 <h2>Puan Geçmişim</h2>
 
-@if (Model != null && Model.Count > 0)
+@if (ViewBag.Message != null)
 {
-    <table class="table">
+    <div class="alert alert-info">
+        @ViewBag.Message
+    </div>
+}
+else
+{
+    <div>
+        <strong>Toplam Puan: </strong> @Model.Sum(p => p.Puan)
+    </div>
+
+    <table class="table table-striped">
         <thead>
             <tr>
-                <th>Puan Miktarı</th>
-                <th>Yıl</th>
                 <th>Tarih</th>
+                <th>Puan</th>
+                <th>Açıklama</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var puan in Model)
             {
                 <tr>
+                    <td>@puan.KazanilanTarih.ToString("dd/MM/yyyy HH:mm")</td>
                     <td>@puan.Puan</td>
-                    <td>@puan.KazanilanTarih.Year</td>
-                    <td>@puan.KazanilanTarih.ToString("dd MMMM yyyy")</td>
+                    <td>
+                        @if (puan.Puan == 10)
+                        {
+                            <span>Etkinliğe Katılım</span>
+                        }
+                        else if (puan.Puan == 15)
+                        {
+                            <span>Etkinlik Oluşturma</span>
+                        }
+                        else if (puan.Puan == 20)
+                        {
+                            <span>İlk Katılım</span>
+                        }
+                        else
+                        {
+                            <span>Açıklama bulunmuyor</span>
+                        }
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
-}
-else
-{
-    <p>Henüz kazanılmış bir puanınız bulunmamaktadır.</p>
 }
