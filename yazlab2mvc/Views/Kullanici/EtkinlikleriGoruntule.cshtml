@@ -2,6 +2,13 @@
 
 <h2>Katılabileceğiniz Etkinlikler</h2>
 
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["Message"]
+    </div>
+}
+
 @if (Model != null && Model.Count > 0)
 {
     <table class="table">

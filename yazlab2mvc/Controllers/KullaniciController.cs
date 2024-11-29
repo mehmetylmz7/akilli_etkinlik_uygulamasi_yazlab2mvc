@@ -247,45 +247,57 @@ namespace yazlab2mvc.Controllers
 
             if (!kullaniciID.HasValue)
             {
-                ViewBag.Message = "Kullanıcı giriş yapmamış. Lütfen giriş yapın.";
-                return RedirectToAction("GirisYap", "Kullanici");
+                TempData["Message"] = "Kullanıcı giriş yapmamış. Lütfen giriş yapın.";
+                return RedirectToAction("EtkinlikleriGoruntule");
             }
 
-            // Kullanıcının bu etkinliğe daha önce katılıp katılmadığını kontrol et
             var mevcutKatilim = _context.Katilimcilar
                 .FirstOrDefault(k => k.KullaniciID == kullaniciID.Value && k.EtkinlikID == etkinlikID);
 
-            if (mevcutKatilim == null)
+            if (mevcutKatilim != null)
             {
-                // Kullanıcının etkinlik katılımını kaydet
-                var yeniKatilim = new Katilimcilar
-                {
-                    KullaniciID = kullaniciID.Value,
-                    EtkinlikID = etkinlikID
-                };
-
-                _context.Katilimcilar.Add(yeniKatilim);
-                await _context.SaveChangesAsync();
-
-                // Kullanıcının daha önce herhangi bir etkinliğe katılıp katılmadığını kontrol et
-                bool ilkKatilim = !_context.Katilimcilar.Any(k => k.KullaniciID == kullaniciID.Value && k.EtkinlikID != etkinlikID);
-
-                if (ilkKatilim)
-                {
-                    // İlk katılım bonusu
-                    await PuanEkle(kullaniciID.Value, 20, "İlk etkinlik katılımı");
-                }
-
-                // Etkinliğe katılım puanı
-                await PuanEkle(kullaniciID.Value, 10, "Etkinliğe katılım");
-
-                ViewBag.Message = "Etkinliğe başarıyla katıldınız, 10 puan kazandınız!";
-            }
-            else
-            {
-                ViewBag.Message = "Bu etkinliğe zaten katıldınız.";
+                TempData["Message"] = "Bu etkinliğe zaten katıldınız.";
+                return RedirectToAction("EtkinlikleriGoruntule");
             }
 
+            var etkinlik = await _context.Etkinlikler.FindAsync(etkinlikID);
+            if (etkinlik == null)
+            {
+                TempData["Message"] = "Etkinlik bulunamadı.";
+                return RedirectToAction("EtkinlikleriGoruntule");
+            }
+
+            var yeniEtkinlikBaslangic = etkinlik.Tarih.Date + etkinlik.Saat;
+            var yeniEtkinlikBitis = yeniEtkinlikBaslangic + etkinlik.EtkinlikSuresi;
+
+            var katildigiEtkinlikler = _context.Katilimcilar
+                .Where(k => k.KullaniciID == kullaniciID.Value)
+                .Select(k => new
+                {
+                    Baslangic = k.Etkinlik.Tarih.Date + k.Etkinlik.Saat,
+                    Bitis = k.Etkinlik.Tarih.Date + k.Etkinlik.Saat + k.Etkinlik.EtkinlikSuresi
+                })
+                .ToList();
+
+            bool cakismaVar = katildigiEtkinlikler.Any(e =>
+                yeniEtkinlikBaslangic < e.Bitis && yeniEtkinlikBitis > e.Baslangic);
+
+            if (cakismaVar)
+            {
+                TempData["Message"] = "Bu etkinliğe katılamazsınız, çünkü başka bir etkinlik ile çakışıyor.";
+                return RedirectToAction("EtkinlikleriGoruntule");
+            }
+
+            var yeniKatilim = new Katilimcilar
+            {
+                KullaniciID = kullaniciID.Value,
+                EtkinlikID = etkinlikID
+            };
+
+            _context.Katilimcilar.Add(yeniKatilim);
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Etkinliğe başarıyla katıldınız, 10 puan kazandınız!";
             return RedirectToAction("EtkinlikleriGoruntule");
         }
 
