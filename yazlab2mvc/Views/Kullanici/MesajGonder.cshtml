@@ -1,40 +1,168 @@
 ﻿@{
     ViewData["Title"] = "Mesaj Gönder";
     var mesajlar = ViewData["Mesajlar"] as List<yazlab2mvc.Models.Mesajlar>;
+    var kullanici = ViewData["Kullanicilar"] as List<yazlab2mvc.Models.Kullanicilar>;
+
 }
 
-<h2>Mesaj Gönder</h2>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
 
-<p><strong>Etkinlik:</strong> @ViewData["EtkinlikAdi"]</p>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJ+6W9y08Y0tG9Y5x9Dfnl9xg6Z3k4M4Bh2PpFZ34waVo+k3oJuqQmWzvToT" crossorigin="anonymous">
 
-<!-- Mesaj Gönderme Formu -->
-<form method="post" action="@Url.Action("MesajGonder", "Kullanici")">
-    <input type="hidden" name="EtkinlikID" value="@ViewData["EtkinlikID"]" />
-    <div class="form-group">
-        <label for="Mesaj">Mesajınızı Yazın:</label>
-        <textarea id="Mesaj" name="Mesaj" class="form-control" rows="4" required></textarea>
-    </div>
-    <button type="submit" class="btn btn-primary">Mesaj Gönder</button>
-</form>
-
-<hr />
-
-<!-- Mesajlar Listesi -->
-<h3>Mesajlar</h3>
-@if (mesajlar != null && mesajlar.Count > 0)
-{
-    <ul class="list-group">
-        @foreach (var mesaj in mesajlar)
-        {
-            <li class="list-group-item">
-                <p><strong>Gönderen:</strong> @mesaj.GondericiID</p> <!-- Gerekirse kullanıcı adını çekebilirsiniz -->
-                <p>@mesaj.MesajMetni</p>
-                <small class="text-muted">Gönderim Tarihi: @mesaj.GonderimZamani.ToString("dd MMMM yyyy HH:mm")</small>
-            </li>
+    <style>
+        /* Sayfa genel ayarları */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
         }
-    </ul>
-}
-else
-{
-    <p>Bu etkinlikte henüz mesaj yok.</p>
-}
+
+        /* Mesaj Gönderme formu için container */
+        .container {
+            max-width: 1200px; /* En geniş 1200px */
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* Mesajlar için genel stil */
+        .message-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .message-table th,
+            .message-table td {
+                padding: 12px;
+                text-align: left;
+                border: 1px solid #ddd;
+            }
+
+            .message-table th {
+                background-color: #007bff;
+                color: white;
+            }
+
+        /* Mesaj kartlarının renkleri */
+        .message-card:nth-child(odd) {
+            background-color: #f8d7da; /* Açık kırmızı */
+        }
+
+        .message-card:nth-child(even) {
+            background-color: #d1ecf1; /* Açık mavi */
+        }
+
+        .message-card:nth-child(3n) {
+            background-color: #d4edda; /* Açık yeşil */
+        }
+
+        .message-card:nth-child(4n) {
+            background-color: #fff3cd; /* Açık sarı */
+        }
+
+        /* Mesaj Başlığı (Gönderen ve Tarih) */
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+            .message-header h5 {
+                margin: 0;
+                color: #007bff;
+            }
+
+            .message-header small {
+                color: #888;
+            }
+
+        .message-body {
+            font-size: 16px;
+            color: #333;
+        }
+
+        /* Mesaj formu alanı */
+        .form-group label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* Buton için stiller */
+        button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+            button[type="submit"]:hover {
+                background-color: #0056b3;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-4">
+        <h2>Mesaj Gönder</h2>
+
+        <p><strong>Etkinlik:</strong> @ViewData["EtkinlikAdi"]</p>
+
+        <!-- Mesaj Gönderme Formu -->
+        <form method="post" action="@Url.Action("MesajGonder", "Kullanici")">
+            <input type="hidden" name="EtkinlikID" value="@ViewData["EtkinlikID"]" />
+            <div class="form-group">
+                <label for="Mesaj">Mesajınızı Yazın:</label>
+                <textarea id="Mesaj" name="Mesaj" class="form-control" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="mt-3">Mesaj Gönder</button>
+        </form>
+
+        <hr />
+
+        <h3>Mesajlar</h3>
+
+        @if (mesajlar != null && mesajlar.Count > 0)
+        {
+            <div class="message-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Gönderen</th>
+                            <th>Tarih</th>
+                            <th>Mesaj</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var mesaj in mesajlar)
+                        {
+                            <tr class="message-card">
+                                <td>@mesaj.GondericiID</td> <!-- Kullanıcı adını almak için değiştirilebilir -->
+                                <td>@mesaj.GonderimZamani.ToString("dd MMMM yyyy HH:mm")</td>
+                                <td>@mesaj.MesajMetni</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p>Bu etkinlikte henüz mesaj yok.</p>
+        }
+    </div>
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0+NfEXg48w+YYk5E5Q1g2p2n6fkmxg9d92uU6M06BlbWztyF" crossorigin="anonymous"></script>
+
+</body>
+</html>
