@@ -239,7 +239,6 @@ namespace yazlab2mvc.Controllers
 
 
 
-
         [HttpPost]
         public async Task<IActionResult> EtkinligeKatil(int etkinlikID)
         {
@@ -297,7 +296,22 @@ namespace yazlab2mvc.Controllers
             _context.Katilimcilar.Add(yeniKatilim);
             await _context.SaveChangesAsync();
 
-            TempData["Message"] = "Etkinliğe başarıyla katıldınız, 10 puan kazandınız!";
+            // Kullanıcının daha önce herhangi bir etkinliğe katılıp katılmadığını kontrol et
+            var dahaOnceKatildiMi = _context.Katilimcilar
+                .Any(k => k.KullaniciID == kullaniciID.Value && k.EtkinlikID != etkinlikID);
+
+            // Eğer ilk etkinlikse 20 puan, değilse 10 puan ekle
+            if (!dahaOnceKatildiMi)
+            {
+                await PuanEkle(kullaniciID.Value, 20, "İlk etkinlik katılımı");
+                TempData["Message"] = "Etkinliğe başarıyla katıldınız, 20 puan kazandınız!";
+            }
+            else
+            {
+                await PuanEkle(kullaniciID.Value, 10, "Etkinlik katılımı");
+                TempData["Message"] = "Etkinliğe başarıyla katıldınız, 10 puan kazandınız!";
+            }
+
             return RedirectToAction("EtkinlikleriGoruntule");
         }
 
@@ -384,7 +398,7 @@ namespace yazlab2mvc.Controllers
             return View(etkinlikler); // Etkinlikleri View'e gönder
         }
 
-
+        [HttpGet]
         public IActionResult MesajGonder(int etkinlikID)
         {
             // Etkinlik bilgilerini al
