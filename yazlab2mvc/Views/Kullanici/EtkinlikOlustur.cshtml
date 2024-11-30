@@ -27,10 +27,33 @@
     <input asp-for="Konum" id="konum" class="form-control" readonly />
 
     <label>Kategori:</label>
-    <input asp-for="Kategori" class="form-control" />
+    <select asp-for="Kategori" class="form-control">
+        <option value="Müzik">Müzik</option>
+        <option value="Spor">Spor</option>
+        <option value="Sanat">Sanat</option>
+        <option value="Yemek">Yemek</option>
+        <option value="Kitap">Kitap</option>
+        <option value="Film ve Dizi">Film ve Dizi</option>
+        <option value="Bilim ve Teknoloji">Bilim ve Teknoloji</option>
+        <option value="Fotoğrafçılık">Fotoğrafçılık</option>
+        <option value="Yoga ve Meditasyon">Yoga ve Meditasyon</option>
+        <option value="Tarih ve Kültür">Tarih ve Kültür</option>
+        <option value="Dans">Dans</option>
+        <option value="Doğa ve Çevre">Doğa ve Çevre</option>
+        <option value="Bahçecilik">Bahçecilik</option>
+        <option value="Moda">Moda</option>
+        <option value="Oyun">Oyun</option>
+        <option value="Seyahat">Seyahat</option>
+        <option value="Fitness">Fitness</option>
+        <option value="Gönüllülük">Gönüllülük</option>
+        <option value="Moda ve Güzellik">Moda ve Güzellik</option>
+        <option value="Koleksiyonculuk">Koleksiyonculuk</option>
+        <option value="Diğer">Diğer</option>
+    </select>
 
     <button type="submit" class="btn btn-primary mt-3">Oluştur</button>
 </form>
+
 
 @section Scripts {
     <!-- Google Maps API -->
