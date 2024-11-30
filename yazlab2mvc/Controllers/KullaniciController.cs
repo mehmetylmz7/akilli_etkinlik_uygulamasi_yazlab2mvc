@@ -385,30 +385,47 @@ namespace yazlab2mvc.Controllers
         }
 
 
-        [HttpGet]
         public IActionResult MesajGonder(int etkinlikID)
         {
-            // Etkinliği al
+            // Etkinlik bilgilerini al
             var etkinlik = _context.Etkinlikler.FirstOrDefault(e => e.ID == etkinlikID);
-
             if (etkinlik == null)
             {
                 TempData["ErrorMessage"] = "Etkinlik bulunamadı.";
                 return RedirectToAction("KatildigimEtkinlikler", "Kullanici");
             }
 
-            // Etkinlikle ilgili mesajları al
+            // Mesajları al
             var mesajlar = _context.Mesajlar
                 .Where(m => m.EtkinlikID == etkinlikID)
-                .OrderByDescending(m => m.GonderimZamani) // Tarihe göre sıralama
+                .OrderByDescending(m => m.GonderimZamani)
                 .ToList();
 
-            // ViewData ile etkinlik bilgisi ve mesajları gönder
-            ViewData["EtkinlikAdi"] = etkinlik.EtkinlikAdi;
-            ViewData["EtkinlikID"] = etkinlikID;
-            ViewData["Mesajlar"] = mesajlar;
+            // Mesaj gönderen kişilerin ID'lerini al
+            var gondericiIDs = mesajlar.Select(m => m.GondericiID).Distinct().ToList();
 
-            return View();
+            // Kullanıcı adlarını al
+            var kullaniciAdiListesi = _context.Kullanicilar
+                .Where(k => gondericiIDs.Contains(k.ID))
+                .ToDictionary(k => k.ID, k => k.KullaniciAdi);  // ID'yi anahtar, kullanıcı adını değer olarak alıyoruz
+
+            // Mesajlarla birlikte kullanıcı adlarını ekle
+            var mesajlarWithKullaniciAdi = mesajlar.Select(m => new MesajViewModel
+            {
+                MesajMetni = m.MesajMetni,
+                GonderimZamani = m.GonderimZamani,
+                KullaniciAdi = kullaniciAdiListesi.ContainsKey(m.GondericiID) ? kullaniciAdiListesi[m.GondericiID] : "Bilinmiyor"
+            }).ToList();
+
+            // Mesajları View'e gönder
+            var model = new MesajGonderViewModel
+            {
+                Mesajlar = mesajlarWithKullaniciAdi,
+                EtkinlikAdi = etkinlik.EtkinlikAdi,
+                EtkinlikID = etkinlikID
+            };
+
+            return View(model);
         }
 
 

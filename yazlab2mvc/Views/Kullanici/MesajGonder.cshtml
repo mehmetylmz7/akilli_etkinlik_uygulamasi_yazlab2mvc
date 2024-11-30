@@ -1,8 +1,7 @@
-﻿@{
-    ViewData["Title"] = "Mesaj Gönder";
-    var mesajlar = ViewData["Mesajlar"] as List<yazlab2mvc.Models.Mesajlar>;
-    var kullanici = ViewData["Kullanicilar"] as List<yazlab2mvc.Models.Kullanicilar>;
+﻿@model MesajGonderViewModel
 
+@{
+    ViewData["Title"] = "Mesaj Gönder";
 }
 
 <!DOCTYPE html>
@@ -115,11 +114,11 @@
     <div class="container mt-4">
         <h2>Mesaj Gönder</h2>
 
-        <p><strong>Etkinlik:</strong> @ViewData["EtkinlikAdi"]</p>
+        <p><strong>Etkinlik:</strong> @Model.EtkinlikAdi</p>
 
         <!-- Mesaj Gönderme Formu -->
         <form method="post" action="@Url.Action("MesajGonder", "Kullanici")">
-            <input type="hidden" name="EtkinlikID" value="@ViewData["EtkinlikID"]" />
+            <input type="hidden" name="EtkinlikID" value="@Model.EtkinlikID" />
             <div class="form-group">
                 <label for="Mesaj">Mesajınızı Yazın:</label>
                 <textarea id="Mesaj" name="Mesaj" class="form-control" rows="4" required></textarea>
@@ -131,29 +130,27 @@
 
         <h3>Mesajlar</h3>
 
-        @if (mesajlar != null && mesajlar.Count > 0)
+        @if (Model.Mesajlar != null && Model.Mesajlar.Count > 0)
         {
-            <div class="message-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Gönderen</th>
-                            <th>Tarih</th>
-                            <th>Mesaj</th>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Gönderen</th>
+                        <th>Tarih</th>
+                        <th>Mesaj</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var mesaj in Model.Mesajlar)
+                    {
+                        <tr class="message-card">
+                            <td>@mesaj.KullaniciAdi</td>
+                            <td>@mesaj.GonderimZamani.ToString("dd MMMM yyyy HH:mm")</td>
+                            <td>@mesaj.MesajMetni</td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var mesaj in mesajlar)
-                        {
-                            <tr class="message-card">
-                                <td>@mesaj.GondericiID</td> <!-- Kullanıcı adını almak için değiştirilebilir -->
-                                <td>@mesaj.GonderimZamani.ToString("dd MMMM yyyy HH:mm")</td>
-                                <td>@mesaj.MesajMetni</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                    }
+                </tbody>
+            </table>
         }
         else
         {
