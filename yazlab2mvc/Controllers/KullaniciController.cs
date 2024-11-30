@@ -159,7 +159,7 @@ namespace yazlab2mvc.Controllers
         {
             sifre = Sifreleme.sifrele(sifre, "kkkk1234");
             var kullanici = _context.Kullanicilar
-                
+
                 .FirstOrDefault(k => k.KullaniciAdi == kullaniciAdi && k.Sifre == sifre);
 
             if (kullanici != null)
@@ -441,7 +441,6 @@ namespace yazlab2mvc.Controllers
             return RedirectToAction("MesajGonder", new { etkinlikID = etkinlikID });
         }
 
-
         // Şifre yenileme sayfası GET
         [HttpGet]
         public IActionResult SifreYenileme()
@@ -600,6 +599,20 @@ namespace yazlab2mvc.Controllers
             await _context.SaveChangesAsync();
 
         }
+
+        public string GetKullaniciAdiById(int kullaniciID)
+        {
+            // Kullanıcıyı veritabanından al
+            var kullanici = _context.Kullanicilar.FirstOrDefault(k => k.ID == kullaniciID);
+
+            // Kullanıcı bulunamazsa boş string döndür
+            if (kullanici == null)
+                return "Bilinmeyen Kullanıcı";
+
+            // Kullanıcı adı döndür
+            return kullanici.KullaniciAdi;
+        }
+
 
     }
 }
